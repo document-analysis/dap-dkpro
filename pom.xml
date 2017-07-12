@@ -56,6 +56,12 @@
 			<version>${dkpro.core.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.textcat-asl</artifactId>
+			<version>${dkpro.core.version}</version>
+		</dependency>
+
 	</dependencies>
 
 </project>
