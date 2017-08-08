@@ -8,6 +8,9 @@ import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.dap.annotators.AggregateAnnotator;
+import org.dap.dap_dkpro.annotations.coref.CoreferenceLink;
+import org.dap.dap_dkpro.converters.CoreferenceLinkConverter;
+import org.dap.dap_dkpro.converters.CoreferenceReferenceAdapter;
 import org.dap.dap_dkpro.converters.LemmaConverter;
 import org.dap.dap_dkpro.converters.NamedEntityConverter;
 import org.dap.dap_dkpro.converters.PosConverter;
@@ -15,6 +18,7 @@ import org.dap.dap_dkpro.converters.SentenceConverter;
 import org.dap.dap_dkpro.converters.StemConverter;
 import org.dap.dap_dkpro.converters.TokenConverter;
 import org.dap.dap_dkpro.converters.TokenReferenceAdapter;
+import org.dap.dap_uimafit.AggregateReferencesAdapter;
 import org.dap.dap_uimafit.AnnotationConverter;
 import org.dap.dap_uimafit.ConverterAnnotator;
 import org.dap.data_structures.Annotation;
@@ -52,7 +56,11 @@ public class Demo1
 			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpNamedEntityRecognizer.class);
 //			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(StanfordNamedEntityRecognizer.class);
 			
-			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, nerDesc);
+//			AnalysisEngineDescription corefDesc = AnalysisEngineFactory.createEngineDescription(StanfordCoreferenceResolver.class);
+			
+			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, nerDesc
+//					, corefDesc
+					);
 			AnalysisEngine uimaAnnotator = AnalysisEngineFactory.createEngine(aggDesc);
 			
 			AnalysisEngine langUimaAnnotator = AnalysisEngineFactory.createEngine(LanguageIdentifier.class);
@@ -64,15 +72,18 @@ public class Demo1
 			converters.put(Stem.class, StemConverter.INSTANCE);
 			converters.put(POS.class, PosConverter.INSTANCE);
 			converters.put(NamedEntity.class, NamedEntityConverter.INSTANCE);
+			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
+			
+			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE);
 			
 			Document document = new Document("doc1", "Hello world.\n"
-					+ "This is my first document. I hope you enjoyed. Microsoft is a large company, founded Bill Gates."
+					+ "This is my first document. John loves Marry. John is happy. She loves him too. This is an apple. It is nice. It is tasty. I hope you enjoyed. Microsoft is a large company, founded Bill Gates."
 					);
 			
 			LanguageFeature.setDocumentLanguage(document, "en");
 			try (ConverterAnnotator dapAnnotator = new ConverterAnnotator(converters, uimaAnnotator))
 			{
-				dapAnnotator.setReferencesAdapter(TokenReferenceAdapter.INSTANCE);
+				dapAnnotator.setReferencesAdapter(aggregateReferencesAdapter);
 				
 				try (LanguageIdentifierAnnotator langAnnotator = new LanguageIdentifierAnnotator(langUimaAnnotator))
 				{
