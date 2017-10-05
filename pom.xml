@@ -68,6 +68,12 @@
 			<version>${dkpro.core.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-asl</artifactId>
+			<version>${dkpro.core.version}</version>
+		</dependency>
+
 
 		<!-- <dependency> -->
 		<!-- <groupId>de.tudarmstadt.ukp.dkpro.core</groupId> -->

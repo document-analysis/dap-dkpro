@@ -1,7 +1,7 @@
 package org.dap.dap_dkpro.annotations.syntax.depencency;
 
-import org.dap.dap_dkpro.annotations.Token;
 import org.dap.data_structures.AnnotationContents;
+import org.dap.data_structures.AnnotationReference;
 
 /**
  * 
@@ -22,14 +22,25 @@ public class Dependency extends AnnotationContents
 		this.flavor = flavor;
 	}
 	
-	public Token getGovernor()
+	
+	public void setGovernor(AnnotationReference governor)
+	{
+		this.governor = governor;
+	}
+	public void setDependent(AnnotationReference dependent)
+	{
+		this.dependent = dependent;
+	}
+
+	public AnnotationReference getGovernor()
 	{
 		return governor;
 	}
-	public Token getDependent()
+	public AnnotationReference getDependent()
 	{
 		return dependent;
 	}
+	
 	public String getDependencyType()
 	{
 		return dependencyType;
@@ -40,8 +51,8 @@ public class Dependency extends AnnotationContents
 	}
 	
 	
-	private Token governor;
-	private Token dependent;
+	private AnnotationReference governor;
+	private AnnotationReference dependent;
 	private final String dependencyType;
 	private final String flavor;
 }

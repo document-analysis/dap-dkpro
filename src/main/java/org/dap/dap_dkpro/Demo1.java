@@ -11,6 +11,8 @@ import org.dap.annotators.AggregateAnnotator;
 import org.dap.dap_dkpro.annotations.coref.CoreferenceLink;
 import org.dap.dap_dkpro.converters.CoreferenceLinkConverter;
 import org.dap.dap_dkpro.converters.CoreferenceReferenceAdapter;
+import org.dap.dap_dkpro.converters.DependencyConverter;
+import org.dap.dap_dkpro.converters.DependencyReferenceAdapter;
 import org.dap.dap_dkpro.converters.LemmaConverter;
 import org.dap.dap_dkpro.converters.NamedEntityConverter;
 import org.dap.dap_dkpro.converters.PosConverter;
@@ -32,6 +34,8 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
+import de.tudarmstadt.ukp.dkpro.core.maltparser.MaltParser;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpNamedEntityRecognizer;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpPosTagger;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpSegmenter;
@@ -58,7 +62,9 @@ public class Demo1
 			
 //			AnalysisEngineDescription corefDesc = AnalysisEngineFactory.createEngineDescription(StanfordCoreferenceResolver.class);
 			
-			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, nerDesc
+			AnalysisEngineDescription dependencyParserDesc = AnalysisEngineFactory.createEngineDescription(MaltParser.class);
+			
+			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, nerDesc, dependencyParserDesc
 //					, corefDesc
 					);
 			AnalysisEngine uimaAnnotator = AnalysisEngineFactory.createEngine(aggDesc);
@@ -73,8 +79,9 @@ public class Demo1
 			converters.put(POS.class, PosConverter.INSTANCE);
 			converters.put(NamedEntity.class, NamedEntityConverter.INSTANCE);
 			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
+			converters.put(Dependency.class, DependencyConverter.INSTANCE);
 			
-			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE);
+			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE, DependencyReferenceAdapter.INSTANCE);
 			
 			Document document = new Document("doc1", "Hello world.\n"
 					+ "This is my first document. John loves Marry. John is happy. She loves him too. This is an apple. It is nice. It is tasty. I hope you enjoyed. Microsoft is a large company, founded Bill Gates."
@@ -109,6 +116,13 @@ public class Demo1
 				{
 					org.dap.dap_dkpro.annotations.ne.NamedEntity ne = (org.dap.dap_dkpro.annotations.ne.NamedEntity)annotation.getAnnotationContents();
 					System.out.println("\t"+ne.getType()+"\t"+ne.getValue());
+				}
+				if (annotation.getAnnotationContents() instanceof org.dap.dap_dkpro.annotations.syntax.depencency.Dependency)
+				{
+					org.dap.dap_dkpro.annotations.syntax.depencency.Dependency dependency = (org.dap.dap_dkpro.annotations.syntax.depencency.Dependency) annotation.getAnnotationContents();
+					System.out.println("\tDependency type = " + dependency.getDependencyType()); 
+					System.out.println("\tGovernor: " + document.findAnnotation(dependency.getGovernor()).getCoveredText());
+					System.out.println("\tDependent: " + document.findAnnotation(dependency.getDependent()).getCoveredText());
 				}
 			}
 		}
