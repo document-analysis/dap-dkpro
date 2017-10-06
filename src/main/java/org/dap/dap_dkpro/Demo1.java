@@ -10,6 +10,8 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.dap.annotators.AggregateAnnotator;
 import org.dap.dap_dkpro.annotations.coref.CoreferenceLink;
 import org.dap.dap_dkpro.converters.ChunkConverter;
+import org.dap.dap_dkpro.converters.ConstituentConverter;
+import org.dap.dap_dkpro.converters.ConstituentReferenceAdapter;
 import org.dap.dap_dkpro.converters.CoreferenceLinkConverter;
 import org.dap.dap_dkpro.converters.CoreferenceReferenceAdapter;
 import org.dap.dap_dkpro.converters.DependencyConverter;
@@ -36,10 +38,12 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.maltparser.MaltParser;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpChunker;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpNamedEntityRecognizer;
+import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpParser;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpPosTagger;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpSegmenter;
 import de.tudarmstadt.ukp.dkpro.core.textcat.LanguageIdentifier;
@@ -67,8 +71,9 @@ public class Demo1
 //			AnalysisEngineDescription corefDesc = AnalysisEngineFactory.createEngineDescription(StanfordCoreferenceResolver.class);
 			
 			AnalysisEngineDescription dependencyParserDesc = AnalysisEngineFactory.createEngineDescription(MaltParser.class);
+			AnalysisEngineDescription constituencyParserDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpParser.class);
 			
-			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, chunkDesc, nerDesc, dependencyParserDesc
+			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, chunkDesc, nerDesc, dependencyParserDesc, constituencyParserDesc
 //					, corefDesc
 					);
 			AnalysisEngine uimaAnnotator = AnalysisEngineFactory.createEngine(aggDesc);
@@ -85,8 +90,9 @@ public class Demo1
 			converters.put(NamedEntity.class, NamedEntityConverter.INSTANCE);
 			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
 			converters.put(Dependency.class, DependencyConverter.INSTANCE);
+			converters.put(Constituent.class, ConstituentConverter.INSTANCE);
 			
-			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE, DependencyReferenceAdapter.INSTANCE);
+			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE, DependencyReferenceAdapter.INSTANCE, ConstituentReferenceAdapter.INSTANCE);
 			
 			Document document = new Document("doc1", "Hello world.\n"
 					+ "This is my first document. John loves Marry. John is happy. She loves him too. This is an apple. It is nice. It is tasty. I hope you enjoyed. Microsoft is a large company, founded Bill Gates."
@@ -128,6 +134,21 @@ public class Demo1
 					System.out.println("\tDependency type = " + dependency.getDependencyType()); 
 					System.out.println("\tGovernor: " + document.findAnnotation(dependency.getGovernor()).getCoveredText());
 					System.out.println("\tDependent: " + document.findAnnotation(dependency.getDependent()).getCoveredText());
+				}
+				if (annotation.getAnnotationContents() instanceof org.dap.dap_dkpro.annotations.syntax.constituency.Constituent)
+				{
+					org.dap.dap_dkpro.annotations.syntax.constituency.Constituent constituent = (org.dap.dap_dkpro.annotations.syntax.constituency.Constituent) annotation.getAnnotationContents();
+					if (constituent.getParent()!=null)
+					{
+						@SuppressWarnings("unchecked")
+						Annotation<org.dap.dap_dkpro.annotations.syntax.constituency.Constituent> parentAnnotation = (Annotation<org.dap.dap_dkpro.annotations.syntax.constituency.Constituent>) document.findAnnotation(constituent.getParent(), true);
+						
+						System.out.println("\t^"+parentAnnotation.getAnnotationContents().getClass().getSimpleName()+": "+parentAnnotation.getCoveredText());
+					}
+					for (AnnotationReference child : constituent.getChildren())
+					{
+						System.out.println("\t---"+document.findAnnotation(child, true).getCoveredText());
+					}
 				}
 			}
 		}
