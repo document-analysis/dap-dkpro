@@ -9,6 +9,7 @@ import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.dap.annotators.AggregateAnnotator;
 import org.dap.dap_dkpro.annotations.coref.CoreferenceLink;
+import org.dap.dap_dkpro.converters.ChunkConverter;
 import org.dap.dap_dkpro.converters.CoreferenceLinkConverter;
 import org.dap.dap_dkpro.converters.CoreferenceReferenceAdapter;
 import org.dap.dap_dkpro.converters.DependencyConverter;
@@ -34,8 +35,10 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Sentence;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Stem;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
+import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.chunk.Chunk;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import de.tudarmstadt.ukp.dkpro.core.maltparser.MaltParser;
+import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpChunker;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpNamedEntityRecognizer;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpPosTagger;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpSegmenter;
@@ -57,6 +60,7 @@ public class Demo1
 		{
 			AnalysisEngineDescription segmenterDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpSegmenter.class);
 			AnalysisEngineDescription posDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpPosTagger.class);
+			AnalysisEngineDescription chunkDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpChunker.class);
 			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpNamedEntityRecognizer.class);
 //			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(StanfordNamedEntityRecognizer.class);
 			
@@ -64,7 +68,7 @@ public class Demo1
 			
 			AnalysisEngineDescription dependencyParserDesc = AnalysisEngineFactory.createEngineDescription(MaltParser.class);
 			
-			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, nerDesc, dependencyParserDesc
+			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, chunkDesc, nerDesc, dependencyParserDesc
 //					, corefDesc
 					);
 			AnalysisEngine uimaAnnotator = AnalysisEngineFactory.createEngine(aggDesc);
@@ -77,6 +81,7 @@ public class Demo1
 			converters.put(Lemma.class, LemmaConverter.INSTANCE);
 			converters.put(Stem.class, StemConverter.INSTANCE);
 			converters.put(POS.class, PosConverter.INSTANCE);
+			converters.put(Chunk.class, ChunkConverter.INSTANCE);
 			converters.put(NamedEntity.class, NamedEntityConverter.INSTANCE);
 			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
 			converters.put(Dependency.class, DependencyConverter.INSTANCE);
@@ -105,7 +110,7 @@ public class Demo1
 
 			for (Annotation<?> annotation : document)
 			{
-				System.out.println(annotation.getAnnotationContents().getClass().getSimpleName() + ": " + annotation.getCoveredText());
+				System.out.println(annotation.getAnnotationContents().getClass().getName() + ": " + annotation.getCoveredText());
 				if (annotation.getAnnotationContents() instanceof org.dap.dap_dkpro.annotations.Token)
 				{
 					AnnotationReference posReference = ((org.dap.dap_dkpro.annotations.Token)annotation.getAnnotationContents()).getPosReference();

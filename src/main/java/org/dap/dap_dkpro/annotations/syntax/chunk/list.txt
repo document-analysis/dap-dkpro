@@ -1,0 +1,9 @@
+ADVC
+CONCJ
+INTJ
+LST
+NC
+O
+PC
+PRT
+VC

@@ -1,4 +1,4 @@
-package org.dap.dap_dkpro.annotations.syntax.depencency;
+package org.dap.dap_dkpro.annotations.syntax.chunk;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,15 +13,15 @@ public class Create
 
 	public static void main(String[] args) throws IOException
 	{
-		final File dir = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/depencency/");
-		final File source = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/depencency/ABBREV.java");
+		final File dir = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/chunk/");
+		final File source = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/chunk/ADJC.java");
 		final String contents = readFile(source);
-		final File listFile = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/depencency/list.txt");
+		final File listFile = new File("/home/asher/main/data/code/git/dap/dap-dkpro/src/main/java/org/dap/dap_dkpro/annotations/syntax/chunk/list.txt");
 		final List<String> list = readList(listFile);
 		
 		for (String name : list)
 		{
-			final String newContents = contents.replace("ABBREV", name);
+			final String newContents = contents.replace("ADJC", name);
 			try (PrintWriter writer = new PrintWriter(new File(dir, name+".java")))
 			{
 				writer.println(newContents);
