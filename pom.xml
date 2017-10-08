@@ -5,9 +5,9 @@
 
 
 	<groupId>com.github.document-analysis</groupId>
-	<artifactId>dap-dkpro</artifactId>
+	<artifactId>dap-dkpro_1_8</artifactId>
 	<version>0.1</version>
-	<name>dap-dkpro</name>
+	<name>dap-dkpro_1_8</name>
 	<description>DKPro in DAP</description>
 
 	<properties>
@@ -49,46 +49,38 @@
 			<artifactId>dap-uimafit</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.opennlp-asl</artifactId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.segmentation-asl</artifactId>
 			<version>${dkpro.core.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.textcat-asl</artifactId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.lexmorph-asl</artifactId>
 			<version>${dkpro.core.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.syntax-asl</artifactId>
+			<version>${dkpro.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.semantics-asl</artifactId>
+			<version>${dkpro.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
+			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.ner-asl</artifactId>
+			<version>${dkpro.core.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
 			<artifactId>de.tudarmstadt.ukp.dkpro.core.api.coref-asl</artifactId>
 			<version>${dkpro.core.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.maltparser-asl</artifactId>
-			<version>${dkpro.core.version}</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-gpl</artifactId>
-			<version>${dkpro.core.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.dkpro.core</groupId>
-			<artifactId>de.tudarmstadt.ukp.dkpro.core.stanfordnlp-upstream-coref-en-default</artifactId>
-			<version>20161031</version>
-			<scope>system</scope>
-			<systemPath>/home/asher/.m2/repository/de/tudarmstadt/ukp/dkpro/core/de.tudarmstadt.ukp.dkpro.core.stanfordnlp-upstream-coref-en-default/20161031/de.tudarmstadt.ukp.dkpro.core.stanfordnlp-upstream-coref-en-default-20161031.jar</systemPath>
-		</dependency>
-
+		
 	</dependencies>
 
 </project>
