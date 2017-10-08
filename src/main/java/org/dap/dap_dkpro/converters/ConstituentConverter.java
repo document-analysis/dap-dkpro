@@ -33,7 +33,9 @@ public class ConstituentConverter implements AnnotationConverter<Constituent>
 		try
 		{
 			de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent uimaConstituent = (de.tudarmstadt.ukp.dkpro.core.api.syntax.type.constituent.Constituent) uimaAnnotation;
-			final String clsName = PACKAGE_NAME+"."+uimaConstituent.getClass().getSimpleName();
+			String simpleName = uimaConstituent.getClass().getSimpleName();
+			if ("PRN".equals(simpleName)) { simpleName = "PARN"; }
+			final String clsName = PACKAGE_NAME+"."+simpleName;
 			Constructor<?> ctor = Class.forName(clsName).getConstructor(String.class, String.class);
 			return (Constituent) ctor.newInstance(uimaConstituent.getConstituentType(), uimaConstituent.getSyntacticFunction());
 		}
