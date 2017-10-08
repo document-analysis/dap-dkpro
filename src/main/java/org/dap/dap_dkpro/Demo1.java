@@ -1,14 +1,16 @@
 package org.dap.dap_dkpro;
 
 import java.util.Arrays;
+
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.dap.annotators.AggregateAnnotator;
-import org.dap.dap_dkpro.annotations.coref.CoreferenceLink;
 import org.dap.dap_dkpro.converters.ChunkConverter;
 import org.dap.dap_dkpro.converters.ConstituentConverter;
 import org.dap.dap_dkpro.converters.ConstituentReferenceAdapter;
@@ -31,6 +33,7 @@ import org.dap.data_structures.AnnotationReference;
 import org.dap.data_structures.Document;
 import org.dap.data_structures.LanguageFeature;
 
+import de.tudarmstadt.ukp.dkpro.core.api.coref.type.CoreferenceLink;
 import de.tudarmstadt.ukp.dkpro.core.api.lexmorph.type.pos.POS;
 import de.tudarmstadt.ukp.dkpro.core.api.ner.type.NamedEntity;
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
@@ -46,6 +49,7 @@ import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpNamedEntityRecognizer;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpParser;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpPosTagger;
 import de.tudarmstadt.ukp.dkpro.core.opennlp.OpenNlpSegmenter;
+import de.tudarmstadt.ukp.dkpro.core.stanfordnlp.StanfordCoreferenceResolver;
 import de.tudarmstadt.ukp.dkpro.core.textcat.LanguageIdentifier;
 
 /**
@@ -58,6 +62,7 @@ import de.tudarmstadt.ukp.dkpro.core.textcat.LanguageIdentifier;
  */
 public class Demo1
 {
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args)
 	{
 		try
@@ -68,13 +73,13 @@ public class Demo1
 			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpNamedEntityRecognizer.class);
 //			AnalysisEngineDescription nerDesc = AnalysisEngineFactory.createEngineDescription(StanfordNamedEntityRecognizer.class);
 			
-//			AnalysisEngineDescription corefDesc = AnalysisEngineFactory.createEngineDescription(StanfordCoreferenceResolver.class);
+			AnalysisEngineDescription corefDesc = AnalysisEngineFactory.createEngineDescription(StanfordCoreferenceResolver.class);
 			
 			AnalysisEngineDescription dependencyParserDesc = AnalysisEngineFactory.createEngineDescription(MaltParser.class);
 			AnalysisEngineDescription constituencyParserDesc = AnalysisEngineFactory.createEngineDescription(OpenNlpParser.class);
 			
 			AnalysisEngineDescription aggDesc = AnalysisEngineFactory.createEngineDescription(segmenterDesc, posDesc, chunkDesc, nerDesc, dependencyParserDesc, constituencyParserDesc
-//					, corefDesc
+					, corefDesc
 					);
 			AnalysisEngine uimaAnnotator = AnalysisEngineFactory.createEngine(aggDesc);
 			
@@ -88,9 +93,9 @@ public class Demo1
 			converters.put(POS.class, PosConverter.INSTANCE);
 			converters.put(Chunk.class, ChunkConverter.INSTANCE);
 			converters.put(NamedEntity.class, NamedEntityConverter.INSTANCE);
-			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
 			converters.put(Dependency.class, DependencyConverter.INSTANCE);
 			converters.put(Constituent.class, ConstituentConverter.INSTANCE);
+			converters.put(CoreferenceLink.class, CoreferenceLinkConverter.INSTANCE);
 			
 			AggregateReferencesAdapter aggregateReferencesAdapter = new AggregateReferencesAdapter(TokenReferenceAdapter.INSTANCE, CoreferenceReferenceAdapter.INSTANCE, DependencyReferenceAdapter.INSTANCE, ConstituentReferenceAdapter.INSTANCE);
 			
@@ -113,6 +118,8 @@ public class Demo1
 					}
 				}
 			}
+			
+			System.out.println("document.getName() = "+document.getName());
 
 			for (Annotation<?> annotation : document)
 			{
@@ -140,7 +147,6 @@ public class Demo1
 					org.dap.dap_dkpro.annotations.syntax.constituency.Constituent constituent = (org.dap.dap_dkpro.annotations.syntax.constituency.Constituent) annotation.getAnnotationContents();
 					if (constituent.getParent()!=null)
 					{
-						@SuppressWarnings("unchecked")
 						Annotation<org.dap.dap_dkpro.annotations.syntax.constituency.Constituent> parentAnnotation = (Annotation<org.dap.dap_dkpro.annotations.syntax.constituency.Constituent>) document.findAnnotation(constituent.getParent(), true);
 						
 						System.out.println("\t^"+parentAnnotation.getAnnotationContents().getClass().getSimpleName()+": "+parentAnnotation.getCoveredText());
@@ -150,6 +156,39 @@ public class Demo1
 						System.out.println("\t---"+document.findAnnotation(child, true).getCoveredText());
 					}
 				}
+				if (annotation.getAnnotationContents() instanceof org.dap.dap_dkpro.annotations.coref.CoreferenceLink)
+				{
+					System.out.println("\tFirst = "+document.findAnnotation(((org.dap.dap_dkpro.annotations.coref.CoreferenceLink)annotation.getAnnotationContents()).getFirst()).getCoveredText());
+				}
+			}
+			
+			System.out.println("Coreference:");
+			List<Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink>> firstLinks = new LinkedList<>();
+			for (Annotation<?> annotation : document.iterable(org.dap.dap_dkpro.annotations.coref.CoreferenceLink.class))
+			{
+				Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink> corefLink = (Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink>) annotation;
+				if (corefLink.getAnnotationContents().getFirst().equals(corefLink.getAnnotationReference()))
+				{
+					firstLinks.add(corefLink);
+				}
+			}
+			for (Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink> firstLink : firstLinks)
+			{
+				Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink> link = firstLink;
+				while (link != null)
+				{
+					System.out.print(link.getCoveredText()+" -> ");
+					AnnotationReference next = link.getAnnotationContents().getNext();
+					if (next!=null)
+					{
+						link = (Annotation<org.dap.dap_dkpro.annotations.coref.CoreferenceLink>) document.findAnnotation(next);
+					}
+					else
+					{
+						link = null;
+					}
+				}
+				System.out.println();
 			}
 		}
 		catch (Throwable t)

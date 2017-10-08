@@ -56,7 +56,11 @@ public class CoreferenceReferenceAdapter implements ReferencesAdapter
 				if (uimaCoreferenceLink != null)
 				{
 					dapReferenceToCoreferenceLink = mapUimaToDap.get(uimaCoreferenceLink);
-					if (dapReferenceToCoreferenceLink == null) {throw new DapException("A required annotation, referenced by a coreference chain, could not be detected.");}
+					if (dapReferenceToCoreferenceLink == null)
+					{
+						throw new DapException("A required annotation, referenced by a coreference chain, could not be detected.\n"
+								+ "For uimaCoreferenceLink over " + uimaCoreferenceLink.getCoveredText());
+					}
 					
 					dapCoreferenceLink.setNext(dapReferenceToCoreferenceLink); // dapCoreferenceLink is still the previous
 				}
